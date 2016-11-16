@@ -4,6 +4,7 @@ import mcp3008
 import httplib, urllib,urllib2
 import time
 import MySQLdb
+from threading import Thread
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(21,GPIO.OUT)
 sleep = 2.5# how many seconds to sleep between posts to the channel
@@ -59,7 +60,14 @@ def  change_valve_manual():
 		except:
 			print "error"
 			break
-
+		req=urllib2.Request('http://mahikanthnag.net23.net/crop_name_retrieve.php')
+         	command_url = urllib2.urlopen(req)
+         	print "in try"
+         	command =command_url.read()
+         	print "after response"
+         	command= command.split('\n')[0]
+	 	if(command=='auto')
+			return 0
 def getCropName():
 	
 		try:
@@ -93,7 +101,14 @@ def change_valve_auto():
 		GPIO.output(21,1)
 	 else:
 		GPIO.output(21,0)
-	
+	 req=urllib2.Request('http://mahikanthnag.net23.net/crop_name_retrieve.php')
+         command_url = urllib2.urlopen(req)
+         print "in try"
+         command =command_url.read()
+         print "after response"
+         command= command.split('\n')[0]
+	 if(command=='auto')
+		return 1
 
 def set_crop():
 	global crop
@@ -103,14 +118,28 @@ def set_crop():
 		print "test"
 		if crop!='undefined' :
 			break
-		
+
+				
 if __name__ == "__main__":
-        global crop
+        status=0
+	global crop
 	set_crop()
+	req=urllib2.Request('http://mahikanthnag.net23.net/crop_name_retrieve.php')
+        command_url = urllib2.urlopen(req)
+        print "in try"
+        command =command_url.read()
+        print "after response"
+        command= command.split('\n')[0]
+	if(command=='auto'):
+		status=1
 	while True:
 		print crop
 		print "fter setcrop"
-                change_valve_auto()
+                if status==1:
+			status=change_valve_auto()
+		elif status==0:
+			status=change_valve_manual()
+		
                 time.sleep(sleep)
 
 
